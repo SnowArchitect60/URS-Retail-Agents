@@ -1,0 +1,13 @@
+[project]
+name = "retail_agents"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "adk>=0.0.5",
+    "google-adk>=2.11.0",
+    "python-telegram-bot>=22.8",
+    "telegram>=0.0.1",
+    "telegramify-markdown>=1.4.0",
+]
