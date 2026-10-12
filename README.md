@@ -177,7 +177,7 @@ If your installed environment specifically provides the older/simple `adk create
 Each script uses:
 
 ```python
-MODEL = os.getenv("DEMO_AGENT_MODEL", "gemini-3.8-flash")
+MODEL = os.getenv("DEMO_AGENT_MODEL", "gemini-3.5-flash-lite")
 ```
 
 This keeps the model choice visible at the top of the file. If your installed ADK/Gemini environment exposes a different model, set:
@@ -192,7 +192,7 @@ on Windows, or:
 export DEMO_AGENT_MODEL=YOUR_MODEL
 ```
 
-on macOS/Linux.
+on macOS/Linux. You may also change `MODEL` definition in the scripts by themselves, if desired.
 
 ## What is deliberately NOT included yet
 
@@ -211,6 +211,25 @@ To keep the first demo explainable, these scripts do not introduce:
 - production databases
 
 Those can be added after the audience understands the basic agent → tool → result loop.
+
+## Other considerations
+
+If you `git clone` this repository, be sure to create a new `.env` file in each agent directory and set your API keys as follows:
+
+```bash
+GOOGLE_GENAI_USE_ENTERPRISE = 0
+GOOGLE_API_KEY = your_google_api_key_here
+```
+
+Under `customer_support_agent`, set your `.env` as shown below to also include the API key generated from Telegram's `@BotFather`:
+
+```bash
+GOOGLE_GENAI_USE_ENTERPRISE = 0
+GOOGLE_API_KEY = your_google_api_key_here
+TELEGRAM_BOT_TOKEN = your_telegram_bot_api_key_here
+```
+
+You may wish to do the same for other agents as one possible extension of this demo.
 
 ## Sources
 
