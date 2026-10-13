@@ -21,8 +21,13 @@ still be run from the ADK playground/CLI without Telegram.
 """
 
 import os
+import httpx
 
 from dotenv import load_dotenv
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(current_dir, '.env')
+load_dotenv(dotenv_path=env_path)
 
 from telegram import Update
 from telegram.ext import (
@@ -33,17 +38,13 @@ from telegram.ext import (
     filters,
 )
 
-from telegramify_markdown import convert, split_entities
+from telegramify_markdown import convert, split_entities, telegramify_rich
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from agent import root_agent
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(current_dir, '.env')
-load_dotenv(dotenv_path=env_path)
 
 APP_NAME = "customer_support_agent"
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -112,24 +113,30 @@ async def ask_adk(chat_id: int, message: str) -> str:
     return final_response
 
 
-async def send_formatted_reply(message, markdown: str) -> None:
-    """Converts Markdown to Telegram formatting and sends it safely."""
-    text, entities = convert(markdown)
+async def send_rich_reply(message, markdown: str) -> None:
+    """Send Markdown using Telegram's Rich Messages API."""
+    chunks = telegramify_rich(markdown)
 
-    chunks = split_entities(
-        text,
-        entities,
-        max_utf16_len=4000,
+    api_url = (
+        f"https://api.telegram.org/bot"
+        f"{TELEGRAM_BOT_TOKEN}/sendRichMessage"
     )
 
-    for chunk_text, chunk_entities in chunks:
-        await message.reply_text(
-            chunk_text,
-            entities=[
-                entity.to_dict()
-                for entity in chunk_entities
-            ],
-        )
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        for chunk in chunks:
+            payload = {
+                "chat_id": message.chat_id,
+                "rich_message": chunk.rich_message.to_dict()
+            }
+
+            response = await client.post(api_url, json = payload)
+            response.raise_for_status()
+
+            result = response.json()
+            if not result.get("ok"):
+                raise RuntimeError(
+                    f"Telegram API error: {result}"
+                )
 
 
 async def start_command(
@@ -179,7 +186,7 @@ async def message_handler(
 
     try:
         response = await ask_adk(chat_id, user_message)
-        await send_formatted_reply(update.message, response)
+        await send_rich_reply(update.message, response)
     except Exception:
         # Don't expose internal stack traces or credentials to customers.
         await update.message.reply_text(
