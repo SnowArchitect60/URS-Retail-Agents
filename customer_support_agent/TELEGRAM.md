@@ -226,7 +226,7 @@ For example:
 
 The coordinator could decide which specialist should handle a request.
 
-However, I recommend **not doing this in the first Telegram demo**. First prove that:
+However, this is a task you can do after proving that:
 
 ```text
 Telegram → ADK → Tool → Response → Telegram
