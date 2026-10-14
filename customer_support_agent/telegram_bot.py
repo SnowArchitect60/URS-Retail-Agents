@@ -38,7 +38,7 @@ from telegram.ext import (
     filters,
 )
 
-from telegramify_markdown import convert, split_entities, telegramify_rich
+from telegramify_markdown import telegramify_rich
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
