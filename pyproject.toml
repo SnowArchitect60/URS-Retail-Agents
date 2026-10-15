@@ -9,6 +9,7 @@ dependencies = [
     "google-adk>=2.11.0",
     "litellm>=1.84",
     "python-telegram-bot>=22.8",
+    "tavily-python>=0.8.5",
     "telegram>=0.0.1",
     "telegramify-markdown>=1.4.0",
 ]
